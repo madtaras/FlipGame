@@ -1,8 +1,12 @@
 /* globals module */
 'use strict';
 
-module.exports = ['_', (_) => {
-    const FlipGameFactory = {};
+module.exports = ['_', '$timeout', (_, $timeout) => {
+    const FlipGameFactory = {
+        gameBoardClickable: {
+            option: 'clickable'
+        }
+    };
 
     const tileBackgroundTypes = [
         'cat',
@@ -28,12 +32,14 @@ module.exports = ['_', (_) => {
             result.push({
                 status: tileStatuses.CLOSED,
                 imgSrc: `images/${type}.svg`,
-                id: `tile${index}`
+                id: `tile${index}`,
+                type: type
             });
             result.push({
                 status: tileStatuses.CLOSED,
                 imgSrc: `images/${type}.svg`,
-                id: `tile${index + tileBackgroundTypes.length}`
+                id: `tile${index + tileBackgroundTypes.length}`,
+                type: type
             });
         });
 
@@ -46,7 +52,40 @@ module.exports = ['_', (_) => {
     FlipGameFactory.tiles = createNewGameBoard();
 
     FlipGameFactory.onTileClick = (tileId) => {
-        // TODO: put onTileClick logic here
+        // Get clicked tile
+        const clickedTile = _.find(FlipGameFactory.tiles, (tile) => tile.id === tileId);
+
+        // Don't do anything if clicked tile have been already opened or solved
+        if (clickedTile.status === tileStatuses.OPENED ||
+            clickedTile.status === tileStatuses.SOLVED) return;
+
+        // If some tile was already opened
+        if (_.find(FlipGameFactory.tiles, (tile) => tile.status === tileStatuses.OPENED)) {
+            // Prevent click events on game board
+            FlipGameFactory.gameBoardClickable.option = 'unclickable';
+
+            const previousOpenedTile = _.find(FlipGameFactory.tiles, (tile) => tile.status === tileStatuses.OPENED);
+
+            // Open clicked tile
+            clickedTile.status = tileStatuses.OPENED;
+
+            // Choose action for tiles: solve or close
+            let tileStatus;
+            if (previousOpenedTile.type === clickedTile.type) {
+                tileStatus = tileStatuses.SOLVED;
+            } else {
+                tileStatus = tileStatuses.CLOSED;
+            }
+
+            $timeout(() => {
+                previousOpenedTile.status = tileStatus;
+                clickedTile.status = tileStatus;
+                FlipGameFactory.gameBoardClickable.option = 'clickable';
+            }, 700);
+        } else {
+            // Open clicked tile
+            clickedTile.status = tileStatuses.OPENED;
+        }
     };
 
     return FlipGameFactory;

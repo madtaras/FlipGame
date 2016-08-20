@@ -4,7 +4,7 @@
 module.exports = () => ({
     restrict: 'E',
     template: `
-        <div class="flip-game-board">
+        <div class="flip-game-board" ng-class="{'unclickable': gameBoardClickable.option === 'unclickable'}">
             <div class="flip-game-tile flip-game-tile-flip-container" ng-repeat="tile in tiles"
               ng-click="onTileClick(tile.id)" ng-class="{'opened': tile.status === 'opened',
               'solved': tile.status === 'solved'}">
@@ -25,5 +25,7 @@ module.exports = () => ({
         $scope.onTileClick = (tileId) => {
             FlipGameFactory.onTileClick(tileId);
         };
+
+        $scope.gameBoardClickable = FlipGameFactory.gameBoardClickable;
     }]
 });

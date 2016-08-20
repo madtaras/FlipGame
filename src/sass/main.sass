@@ -40,6 +40,9 @@ body
   align-content: space-between
   justify-content: space-between
 
+  &.unclickable
+    pointer-events: none !important
+
 .flip-game-tile
   height: 110px
   width: 110px
@@ -47,6 +50,9 @@ body
 
   &.solved
     pointer-events: none
+
+    img
+      display: none
 
 .flip-game-tile-flip-container
   perspective: 1000px
