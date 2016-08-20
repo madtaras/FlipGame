@@ -4,8 +4,9 @@
 module.exports = () => ({
     restrict: 'E',
     template: `
-        <div class="flip-game-board" ng-class="{'unclickable': gameBoardClickable.option === 'unclickable'}">
-            <div class="flip-game-tile flip-game-tile-flip-container" ng-repeat="tile in tiles"
+        <input type="button" class="flip-game-reset-game-btn" value="Reset game" ng-click="resetGame()">
+        <div class="flip-game-board" ng-class="{'unclickable': model.gameBoardUnclickable}">
+            <div class="flip-game-tile flip-game-tile-flip-container" ng-repeat="tile in model.tiles"
               ng-click="onTileClick(tile.id)" ng-class="{'opened': tile.status === 'opened',
               'solved': tile.status === 'solved'}">
                 <div class="flip-game-tile-flipper">
@@ -20,12 +21,14 @@ module.exports = () => ({
         </div>
     `,
     controller: ['$scope', 'FlipGameFactory', ($scope, FlipGameFactory) => {
-        $scope.tiles = FlipGameFactory.tiles;
+        $scope.model = FlipGameFactory;
 
         $scope.onTileClick = (tileId) => {
-            FlipGameFactory.onTileClick(tileId);
+            $scope.model.onTileClick(tileId);
         };
 
-        $scope.gameBoardClickable = FlipGameFactory.gameBoardClickable;
+        $scope.resetGame = () => {
+            $scope.model.resetGame();
+        };
     }]
 });

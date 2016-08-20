@@ -3,9 +3,7 @@
 
 module.exports = ['_', '$timeout', (_, $timeout) => {
     const FlipGameFactory = {
-        gameBoardClickable: {
-            option: 'clickable'
-        }
+        gameBoardUnclickable: false
     };
 
     const tileBackgroundTypes = [
@@ -62,7 +60,7 @@ module.exports = ['_', '$timeout', (_, $timeout) => {
         // If some tile was already opened
         if (_.find(FlipGameFactory.tiles, (tile) => tile.status === tileStatuses.OPENED)) {
             // Prevent click events on game board
-            FlipGameFactory.gameBoardClickable.option = 'unclickable';
+            FlipGameFactory.gameBoardUnclickable = true;
 
             const previousOpenedTile = _.find(FlipGameFactory.tiles, (tile) => tile.status === tileStatuses.OPENED);
 
@@ -80,12 +78,16 @@ module.exports = ['_', '$timeout', (_, $timeout) => {
             $timeout(() => {
                 previousOpenedTile.status = tileStatus;
                 clickedTile.status = tileStatus;
-                FlipGameFactory.gameBoardClickable.option = 'clickable';
+                FlipGameFactory.gameBoardUnclickable = false;
             }, 700);
         } else {
             // Open clicked tile
             clickedTile.status = tileStatuses.OPENED;
         }
+    };
+
+    FlipGameFactory.resetGame = () => {
+        FlipGameFactory.tiles = createNewGameBoard();
     };
 
     return FlipGameFactory;

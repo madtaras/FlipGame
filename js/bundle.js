@@ -48516,15 +48516,17 @@ module.exports = angular;
 module.exports = function () {
     return {
         restrict: 'E',
-        template: '\n        <div class="flip-game-board" ng-class="{\'unclickable\': gameBoardClickable.option === \'unclickable\'}">\n            <div class="flip-game-tile flip-game-tile-flip-container" ng-repeat="tile in tiles"\n              ng-click="onTileClick(tile.id)" ng-class="{\'opened\': tile.status === \'opened\',\n              \'solved\': tile.status === \'solved\'}">\n                <div class="flip-game-tile-flipper">\n                    <div class="flip-game-tile-front">\n                        <img src="images/question-mark.svg" ng-hide="status === \'solved\'">\n                    </div>\n                    <div class="flip-game-tile-back">\n                        <img ng-src="{{tile.imgSrc}}">\n                    </div>\n                </div>\n            </div>\n        </div>\n    ',
+        template: '\n        <input type="button" class="flip-game-reset-game-btn" value="Reset game" ng-click="resetGame()">\n        <div class="flip-game-board" ng-class="{\'unclickable\': model.gameBoardUnclickable}">\n            <div class="flip-game-tile flip-game-tile-flip-container" ng-repeat="tile in model.tiles"\n              ng-click="onTileClick(tile.id)" ng-class="{\'opened\': tile.status === \'opened\',\n              \'solved\': tile.status === \'solved\'}">\n                <div class="flip-game-tile-flipper">\n                    <div class="flip-game-tile-front">\n                        <img src="images/question-mark.svg" ng-hide="status === \'solved\'">\n                    </div>\n                    <div class="flip-game-tile-back">\n                        <img ng-src="{{tile.imgSrc}}">\n                    </div>\n                </div>\n            </div>\n        </div>\n    ',
         controller: ['$scope', 'FlipGameFactory', function ($scope, FlipGameFactory) {
-            $scope.tiles = FlipGameFactory.tiles;
+            $scope.model = FlipGameFactory;
 
             $scope.onTileClick = function (tileId) {
-                FlipGameFactory.onTileClick(tileId);
+                $scope.model.onTileClick(tileId);
             };
 
-            $scope.gameBoardClickable = FlipGameFactory.gameBoardClickable;
+            $scope.resetGame = function () {
+                $scope.model.resetGame();
+            };
         }]
     };
 };
@@ -48535,9 +48537,7 @@ module.exports = function () {
 
 module.exports = ['_', '$timeout', function (_, $timeout) {
     var FlipGameFactory = {
-        gameBoardClickable: {
-            option: 'clickable'
-        }
+        gameBoardUnclickable: false
     };
 
     var tileBackgroundTypes = ['cat', 'dog', 'fox', 'koala', 'owl', 'penguin', 'raccoon', 'sheep'];
@@ -48589,7 +48589,7 @@ module.exports = ['_', '$timeout', function (_, $timeout) {
         })) {
             (function () {
                 // Prevent click events on game board
-                FlipGameFactory.gameBoardClickable.option = 'unclickable';
+                FlipGameFactory.gameBoardUnclickable = true;
 
                 var previousOpenedTile = _.find(FlipGameFactory.tiles, function (tile) {
                     return tile.status === tileStatuses.OPENED;
@@ -48609,13 +48609,17 @@ module.exports = ['_', '$timeout', function (_, $timeout) {
                 $timeout(function () {
                     previousOpenedTile.status = tileStatus;
                     clickedTile.status = tileStatus;
-                    FlipGameFactory.gameBoardClickable.option = 'clickable';
+                    FlipGameFactory.gameBoardUnclickable = false;
                 }, 700);
             })();
         } else {
             // Open clicked tile
             clickedTile.status = tileStatuses.OPENED;
         }
+    };
+
+    FlipGameFactory.resetGame = function () {
+        FlipGameFactory.tiles = createNewGameBoard();
     };
 
     return FlipGameFactory;
