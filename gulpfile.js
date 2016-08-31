@@ -1,10 +1,10 @@
 const gulp = require('gulp');
-const sourcemaps = require('gulp-sourcemaps');
 const source = require('vinyl-source-stream');
 const buffer = require('vinyl-buffer');
 const browserify = require('browserify');
 const watchify = require('watchify');
 const babel = require('babelify');
+const uglify = require('gulp-uglify');
 
 const postcss = require('gulp-postcss');
 const postcssFlexbugsFixes = require('postcss-flexbugs-fixes');
@@ -47,8 +47,9 @@ gulp.task('js', () => {
         .on('error', function(err) { console.error(err); this.emit('end'); })
         .pipe(source('bundle.js'))
         .pipe(buffer())
-        .pipe(sourcemaps.init({ loadMaps: true }))
-        .pipe(sourcemaps.write('./'))
+        .pipe(uglify({
+            'mangle': false
+        }))
         .pipe(gulp.dest('./js'));
 });
 
